@@ -58,7 +58,7 @@ public static class UserCoreLogin
                 conn.Open();
                 var sql = @"select UserId, Username, Role, Name 
                         from dbo.Users
-                        where UserId = @Id";
+                        where UserId = @UserId";
                 var user = await conn.QuerySingleOrDefaultAsync<AppUser>
                     (sql, new { UserId = id });
                 if (user is null) return Results.NotFound();
