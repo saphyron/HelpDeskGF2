@@ -1,0 +1,6 @@
+@HelpDeskGF2_HostAddress = http://localhost:5173
+
+GET {{HelpDeskGF2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
