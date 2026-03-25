@@ -46,7 +46,7 @@ public static class ThreadCreation
        // Create thread 
         group.MapPost("/threads", async Task<Results<Ok, BadRequest<string>>> (
             CreateThreadDto body,
-            SqlConnectionFactory factory) =>
+            ISqlConnectionFactory factory) =>
         {
             if (string.IsNullOrWhiteSpace(body.Title))
                 return TypedResults.BadRequest("Title is required");
