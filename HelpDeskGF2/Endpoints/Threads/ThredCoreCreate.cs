@@ -26,7 +26,7 @@ public static class ThreadCreation
             return Results.Ok(threads);
         }).AllowAnonymous();
         // Get threads by id
-        group.MapGet("/threads/{id:int}", async (int id, ISqlConnectionFactory factory) =>
+        group.MapGet("/threads/{id}", async (int id, ISqlConnectionFactory factory) =>
         {
             using var conn = factory.Create();
             conn.Open();
@@ -63,7 +63,7 @@ public static class ThreadCreation
             return TypedResults.BadRequest("Failed to create thread");
         }).AllowAnonymous();
         // Update thread
-        group.MapPut("/threads/{id:int}", async Task<Results<Ok, NotFound, BadRequest<string>>> (
+        group.MapPut("/threads/{id}", async Task<Results<Ok, NotFound, BadRequest<string>>> (
             int id,
             UpdateThreadDto body,
             ISqlConnectionFactory factory) =>
@@ -85,7 +85,7 @@ public static class ThreadCreation
             return TypedResults.BadRequest("Failed to update thread");
         }).AllowAnonymous();
         // Add response to thread
-        group.MapPost("/threads/{id:int}/responses", async Task<Results<Ok, NotFound, BadRequest<string>>> (
+        group.MapPost("/threads/{id}/responses", async Task<Results<Ok, NotFound, BadRequest<string>>> (
             int id,
             AddThreadResponseDto body,
             ISqlConnectionFactory factory) =>
@@ -111,7 +111,7 @@ public static class ThreadCreation
             return TypedResults.BadRequest("Failed to add response");
         }).AllowAnonymous();
         // Update ResponseBody
-        group.MapPut("/threads/{threadId:int}/responses/{responseId:int}", async Task<Results<Ok, NotFound, BadRequest<string>>> (
+        group.MapPut("/threads/{threadId}/responses/{responseId}", async Task<Results<Ok, NotFound, BadRequest<string>>> (
             int threadId,
             int responseId,
             string responseBody,
@@ -140,7 +140,7 @@ public static class ThreadCreation
             return TypedResults.BadRequest("Failed to update response");
         }).AllowAnonymous();
         // List endpoints with role-based filtering
-        group.MapGet("/Threads/{role:string}&{id:int}/list", async (string role, int id, ISqlConnectionFactory factory) =>
+        group.MapGet("/Threads/{role}&{id}/list", async (string role, int id, ISqlConnectionFactory factory) =>
         {
             using var conn = factory.Create();
             conn.Open();
@@ -178,7 +178,7 @@ public static class ThreadCreation
             return Results.Ok(threads);
         }).AllowAnonymous();
         // Admin - all threads
-        group.MapGet("/Threads/admin&{status:string}/list", async (string status, ISqlConnectionFactory factory) =>
+        group.MapGet("/Threads/admin&{status}/list", async (string status, ISqlConnectionFactory factory) =>
         {
             using var conn = factory.Create();
             conn.Open();

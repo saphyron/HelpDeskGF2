@@ -51,7 +51,7 @@ public static class UserCoreLogin
                 return Results.Ok(users);
             }).AllowAnonymous();
 
-        group.MapGet("/{id:int}",
+        group.MapGet("/{id}",
             async (int id, ISqlConnectionFactory factory) =>
             {
                 using var conn = factory.Create();
@@ -86,7 +86,7 @@ public static class UserCoreLogin
                 }
             }).AllowAnonymous();
 
-        group.MapPut("/{id:int}",
+        group.MapPut("/{id}",
             async Task<Results<NoContent, NotFound, BadRequest<string>, Conflict<string>>>
                 (int id, UpdateUserRequest req, ISqlConnectionFactory factory) =>
             {
@@ -111,7 +111,7 @@ public static class UserCoreLogin
                 return TypedResults.NoContent();
             }).AllowAnonymous();
 
-        group.MapPut("/admin/{id:int}",
+        group.MapPut("/admin/{id}",
             async Task<Results<NoContent, NotFound, BadRequest<string>, Conflict<string>>>
                 (int id, UpdateUserRequest req, ISqlConnectionFactory factory) =>
             {
@@ -138,7 +138,7 @@ public static class UserCoreLogin
                 return TypedResults.NoContent();
             }).AllowAnonymous();
 
-        group.MapDelete("/{id:int}",
+        group.MapDelete("/{id}",
             async Task<Results<NoContent, NotFound>>
                 (int id, ISqlConnectionFactory factory) =>
             {
