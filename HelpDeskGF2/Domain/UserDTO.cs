@@ -36,6 +36,14 @@ public class CreateUserRequest
 public class UpdateUserRequest
 {
     public int UserId { get; set; }
+    public string? PasswordClear { get; set; }
+    public string? Role { get; set; }
+    public string? Name { get; set; }
+}
+
+public class UpdateUserRequestAdmin
+{
+    public int UserId { get; set; }
     public string? Username { get; set; }
     public string? PasswordClear { get; set; }
     public string? Role { get; set; }

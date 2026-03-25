@@ -113,7 +113,7 @@ public static class UserCoreLogin
 
         group.MapPut("/admin/{id}",
             async Task<Results<NoContent, NotFound, BadRequest<string>, Conflict<string>>>
-                (int id, UpdateUserRequest req, ISqlConnectionFactory factory) =>
+                (int id, UpdateUserRequestAdmin req, ISqlConnectionFactory factory) =>
             {
                 using var conn = factory.Create();
                 conn.Open();
