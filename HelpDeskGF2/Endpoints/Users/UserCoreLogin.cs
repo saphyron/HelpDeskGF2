@@ -100,7 +100,7 @@ public static class UserCoreLogin
                                 set Password = @PasswordClear
                                 , Role = @Role
                                 , Name = @Name
-                                where UserId = @Id;";
+                                where UserId = @UserId;";
                 await conn.ExecuteAsync(sql, new
                 {
                     UserId = id,
@@ -126,7 +126,7 @@ public static class UserCoreLogin
                                 , Password = @PasswordClear
                                 , Role = @Role
                                 , Name = @Name
-                                where UserId = @Id;";
+                                where UserId = @UserId;";
                 await conn.ExecuteAsync(sql, new
                 {
                     UserId = id,
