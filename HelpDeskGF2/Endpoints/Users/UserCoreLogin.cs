@@ -9,7 +9,7 @@ public static class UserCoreLogin
 {
     public static RouteGroupBuilder MapLoginEndpoint(this IEndpointRouteBuilder g)
     {
-        var group = g.MapGroup("/user/").AllowAnonymous();
+        var group = g.MapGroup("/user").AllowAnonymous();
         group.MapPost("/login",
                async Task<Results<Ok<LoginResponse>, UnauthorizedHttpResult, BadRequest<string>>> (
                    LoginRequest body,
