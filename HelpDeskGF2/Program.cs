@@ -67,7 +67,7 @@ if (app.Environment.IsDevelopment())
     });
 
     // DB-ping (dev only)
-    app.MapGet("/db-ping", async (SqlConnectionFactory f) =>
+    app.MapGet("/db-ping", async (ISqlConnectionFactory f) =>
     {
         await using var conn = f.Create() as SqlConnection;
         await conn!.OpenAsync();
