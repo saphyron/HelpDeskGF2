@@ -24,7 +24,7 @@ public static class UserCoreLogin
                           from dbo.Users
                           where Username = @Username;",
                        new { body.Username });
-                   if (user is null || user.PasswordClear != body.Password)
+                   if (user is null || user.Password != body.Password)
                        return TypedResults.Unauthorized();
                    var response = new LoginResponse
                    {
@@ -104,7 +104,7 @@ public static class UserCoreLogin
                 await conn.ExecuteAsync(sql, new
                 {
                     UserId = id,
-                    PasswordClear = req.PasswordClear,
+                    PasswordClear = req.Password,
                     Role = req.Role,
                     Name = req.Name
                 });
@@ -131,7 +131,7 @@ public static class UserCoreLogin
                 {
                     UserId = id,
                     Username = req.Username,
-                    PasswordClear = req.PasswordClear,
+                    PasswordClear = req.Password,
                     Role = req.Role,
                     Name = req.Name
                 });
