@@ -20,7 +20,7 @@ public static class UserCoreLogin
                    conn.Open();
 
                    var user = await conn.QuerySingleOrDefaultAsync<UserAuthRow>(
-                       @"select UserId, Username, PasswordClear, Role, Name
+                       @"select UserId, Username, Password, Role, Name
                           from dbo.Users
                           where Username = @Username;",
                        new { body.Username });
@@ -73,7 +73,7 @@ public static class UserCoreLogin
                 conn.Open();
                 try
                 {
-                    var sql = @"insert into dbo.Users (Username, PasswordClear) 
+                    var sql = @"insert into dbo.Users (Username, Password) 
                                     values (@Username, @PasswordClear);
                                     select cast(scope_identity() as int);";
                     var newId = await conn.ExecuteScalarAsync<int>(sql, req);
@@ -97,7 +97,7 @@ public static class UserCoreLogin
                 if (exists == 0) return TypedResults.NotFound();
 
                 var sql = @"update dbo.Users
-                                set PasswordClear = @PasswordClear
+                                set Password = @PasswordClear
                                 , Role = @Role
                                 , Name = @Name
                                 where UserId = @Id;";
@@ -123,7 +123,7 @@ public static class UserCoreLogin
 
                 var sql = @"update dbo.Users
                                 set Username = @Username
-                                , PasswordClear = @PasswordClear
+                                , Password = @PasswordClear
                                 , Role = @Role
                                 , Name = @Name
                                 where UserId = @Id;";
