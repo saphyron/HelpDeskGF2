@@ -13,7 +13,7 @@ public static class UserCoreLogin
         group.MapPost("/login",
                async Task<Results<Ok<LoginResponse>, UnauthorizedHttpResult, BadRequest<string>>> (
                    LoginRequest body,
-                   SqlConnectionFactory factory,
+                   ISqlConnectionFactory factory,
                    IConfiguration config) =>
                {
                    using var conn = factory.Create();
@@ -40,7 +40,7 @@ public static class UserCoreLogin
                }).AllowAnonymous();
 
         group.MapGet("/",
-            async (SqlConnectionFactory factory) =>
+            async (ISqlConnectionFactory factory) =>
             {
                 using var conn = factory.Create();
                 conn.Open();
@@ -52,7 +52,7 @@ public static class UserCoreLogin
             }).AllowAnonymous();
 
         group.MapGet("/{id:int}",
-            async (int id, SqlConnectionFactory factory) =>
+            async (int id, ISqlConnectionFactory factory) =>
             {
                 using var conn = factory.Create();
                 conn.Open();
@@ -67,7 +67,7 @@ public static class UserCoreLogin
 
         group.MapPost("/",
             async Task<Results<Created<User>, BadRequest<string>, Conflict<string>>>
-                (CreateUserRequest req, SqlConnectionFactory factory) =>
+                (CreateUserRequest req, ISqlConnectionFactory factory) =>
             {
                 using var conn = factory.Create();
                 conn.Open();
@@ -88,7 +88,32 @@ public static class UserCoreLogin
 
         group.MapPut("/{id:int}",
             async Task<Results<NoContent, NotFound, BadRequest<string>, Conflict<string>>>
-                (int id, UpdateUserRequest req, SqlConnectionFactory factory) =>
+                (int id, UpdateUserRequest req, ISqlConnectionFactory factory) =>
+            {
+                using var conn = factory.Create();
+                conn.Open();
+                var exists = await conn.ExecuteScalarAsync<int>(
+                    "select count(1) from dbo.Users where Id = @ID", new { id });
+                if (exists == 0) return TypedResults.NotFound();
+
+                var sql = @"update dbo.Users
+                                set PasswordClear = @PasswordClear
+                                , Role = @Role
+                                , Name = @Name
+                                where Id = @Id;";
+                await conn.ExecuteAsync(sql, new
+                {
+                    Id = id,
+                    PasswordClear = req.PasswordClear,
+                    Role = req.Role,
+                    Name = req.Name
+                });
+                return TypedResults.NoContent();
+            }).AllowAnonymous();
+
+        group.MapPut("/admin/{id:int}",
+            async Task<Results<NoContent, NotFound, BadRequest<string>, Conflict<string>>>
+                (int id, UpdateUserRequest req, ISqlConnectionFactory factory) =>
             {
                 using var conn = factory.Create();
                 conn.Open();
@@ -115,7 +140,7 @@ public static class UserCoreLogin
 
         group.MapDelete("/{id:int}",
             async Task<Results<NoContent, NotFound>>
-                (int id, SqlConnectionFactory factory) =>
+                (int id, ISqlConnectionFactory factory) =>
             {
                 using var conn = factory.Create();
                 conn.Open();

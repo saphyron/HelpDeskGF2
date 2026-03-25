@@ -3,7 +3,7 @@ using System.Data;
 
 namespace HelpDesk.Data;
 
-public class SqlConnectionFactory
+public class SqlConnectionFactory : ISqlConnectionFactory
 {
     private readonly string _connectionString;
 

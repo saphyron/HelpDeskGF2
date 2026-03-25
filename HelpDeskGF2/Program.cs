@@ -28,40 +28,7 @@ builder.Services.AddCors(o =>
         .AllowCredentials());
 });
 
-// ---------- Connection string ----------
-string? connFromSettings = builder.Configuration.GetConnectionString("Default");
-
-var sqlServer   = builder.Configuration["SQL_SERVER"];
-var sqlDb       = builder.Configuration["SQL_DATABASE"];
-var sqlUser     = builder.Configuration["SQL_USER"];
-var sqlPass     = builder.Configuration["SQL_PASSWORD"];
-var sqlEncrypt  = builder.Configuration["SQL_ENCRYPT"];
-var sqlTsc      = builder.Configuration["SQL_TRUST_SERVER_CERTIFICATE"];
-var sqlTrustCon = builder.Configuration["SQL_TRUST_CONNECTION"];
-
-string connString;
-if (!string.IsNullOrWhiteSpace(sqlServer) &&
-    !string.IsNullOrWhiteSpace(sqlDb) &&
-    !string.IsNullOrWhiteSpace(sqlUser))
-{
-    var sb = new SqlConnectionStringBuilder
-    {
-        DataSource = sqlServer,
-        InitialCatalog = sqlDb,
-        UserID = sqlUser,
-        Password = sqlPass,
-        Encrypt = string.Equals(sqlEncrypt, "true", StringComparison.OrdinalIgnoreCase),
-        TrustServerCertificate = string.Equals(sqlTsc ?? "true", "true", StringComparison.OrdinalIgnoreCase),
-    };
-    connString = sb.ConnectionString;
-}
-else
-{
-    connString = connFromSettings ?? throw new InvalidOperationException("No connection string configured.");
-}
-
-builder.Services.AddSingleton(new SqlConnectionFactory(connString));
-builder.Services.AddScoped<Db>();
+builder.Services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -119,7 +86,8 @@ app.MapGet("/health/ready", () => Results.Ok(new { ok = true }));
 app.MapGet("/api/health/ready", () => Results.Ok(new { ok = true })).AllowAnonymous();
 
 // API Endpoints
-
+app.MapThreadCreationEndpoint();
+app.MapLoginEndpoint();
 
 app.Run();
 
