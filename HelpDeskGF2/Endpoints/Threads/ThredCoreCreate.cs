@@ -32,11 +32,11 @@ public static class ThreadCreation
             conn.Open();
             var sql = @"select *
                         from dbo.Threads
-                        where Id = @Id;
+                        where ThreadId = @Id;
                         select *
                         from dbo.ThreadResponses r
                         where r.ThreadId = @Id";
-            using var multi = await conn.QueryMultipleAsync(sql, new { Id = id });
+            using var multi = await conn.QueryMultipleAsync(sql, new { ThreadId = id });
             var thread = await multi.ReadSingleOrDefaultAsync<ThreadDto>();
             if (thread is null)
                 return Results.NotFound();
@@ -78,8 +78,8 @@ public static class ThreadCreation
             var threadBody = body.ThreadBody ?? existing.ThreadBody;
             var sql = @"update dbo.Threads
                         set Title = @Title, ThreadBody = @ThreadBody
-                        where Id = @Id";
-            var rows = await conn.ExecuteAsync(sql, new { Id = id, Title = title, ThreadBody = threadBody });
+                        where ThreadId = @Id";
+            var rows = await conn.ExecuteAsync(sql, new { ThreadId = id, Title = title, ThreadBody = threadBody });
             if (rows == 1)
                 return TypedResults.Ok();
             return TypedResults.BadRequest("Failed to update thread");
@@ -93,7 +93,7 @@ public static class ThreadCreation
             using var conn = factory.Create();
             conn.Open();
             var existing = await conn.QuerySingleOrDefaultAsync<ThreadDto>(
-                "select * from dbo.Threads where Id = @Id", new { Id = id });
+                "select * from dbo.Threads where ThreadId = @Id", new { Id = id });
             if (existing is null)
                 return TypedResults.NotFound();
             if (string.IsNullOrWhiteSpace(body.ResponseBody))

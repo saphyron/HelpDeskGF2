@@ -20,7 +20,7 @@ public static class UserCoreLogin
                    conn.Open();
 
                    var user = await conn.QuerySingleOrDefaultAsync<UserAuthRow>(
-                       @"select Id, Username, PasswordClear, Role, Name
+                       @"select UserId, Username, PasswordClear, Role, Name
                           from dbo.Users
                           where Username = @Username;",
                        new { body.Username });
@@ -44,9 +44,9 @@ public static class UserCoreLogin
             {
                 using var conn = factory.Create();
                 conn.Open();
-                var sql = @"select Id, Username, Role, Name 
+                var sql = @"select UserId, Username, Role, Name 
                         from dbo.Users
-                        order by Id";
+                        order by UserId";
                 var users = await conn.QueryAsync<User>(sql);
                 return Results.Ok(users);
             }).AllowAnonymous();
@@ -56,11 +56,11 @@ public static class UserCoreLogin
             {
                 using var conn = factory.Create();
                 conn.Open();
-                var sql = @"select Id, Username, Role, Name 
+                var sql = @"select UserId, Username, Role, Name 
                         from dbo.Users
-                        where Id = @Id";
+                        where UserId = @Id";
                 var user = await conn.QuerySingleOrDefaultAsync<User>
-                    (sql, new { Id = id });
+                    (sql, new { UserId = id });
                 if (user is null) return Results.NotFound();
                 return Results.Ok(user);
             }).AllowAnonymous();
@@ -93,17 +93,17 @@ public static class UserCoreLogin
                 using var conn = factory.Create();
                 conn.Open();
                 var exists = await conn.ExecuteScalarAsync<int>(
-                    "select count(1) from dbo.Users where Id = @ID", new { id });
+                    "select count(1) from dbo.Users where UserId = @ID", new { id });
                 if (exists == 0) return TypedResults.NotFound();
 
                 var sql = @"update dbo.Users
                                 set PasswordClear = @PasswordClear
                                 , Role = @Role
                                 , Name = @Name
-                                where Id = @Id;";
+                                where UserId = @Id;";
                 await conn.ExecuteAsync(sql, new
                 {
-                    Id = id,
+                    UserId = id,
                     PasswordClear = req.PasswordClear,
                     Role = req.Role,
                     Name = req.Name
@@ -118,7 +118,7 @@ public static class UserCoreLogin
                 using var conn = factory.Create();
                 conn.Open();
                 var exists = await conn.ExecuteScalarAsync<int>(
-                    "select count(1) from dbo.Users where Id = @ID", new { id });
+                    "select count(1) from dbo.Users where UserId = @ID", new { id });
                 if (exists == 0) return TypedResults.NotFound();
 
                 var sql = @"update dbo.Users
@@ -126,10 +126,10 @@ public static class UserCoreLogin
                                 , PasswordClear = @PasswordClear
                                 , Role = @Role
                                 , Name = @Name
-                                where Id = @Id;";
+                                where UserId = @Id;";
                 await conn.ExecuteAsync(sql, new
                 {
-                    Id = id,
+                    UserId = id,
                     Username = req.Username,
                     PasswordClear = req.PasswordClear,
                     Role = req.Role,
@@ -145,7 +145,7 @@ public static class UserCoreLogin
                 using var conn = factory.Create();
                 conn.Open();
                 var affected = await conn.ExecuteAsync(
-                    "delete from dbo.Users where Id = @ID", new { id });
+                    "delete from dbo.Users where UserId = @ID", new { id });
                 if (affected == 0) return TypedResults.NotFound();
                 return TypedResults.NoContent();
             }).AllowAnonymous();
