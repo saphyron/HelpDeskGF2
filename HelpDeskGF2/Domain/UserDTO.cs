@@ -1,6 +1,6 @@
 namespace HelpDesk.Domain;
 
-public class User
+public class AppUser
 {
     public int UserId { get; set; }
     public string Username { get; set; } = "";

@@ -47,7 +47,7 @@ public static class UserCoreLogin
                 var sql = @"select UserId, Username, Role, Name 
                         from dbo.Users
                         order by UserId";
-                var users = await conn.QueryAsync<User>(sql);
+                var users = await conn.QueryAsync<AppUser>(sql);
                 return Results.Ok(users);
             }).AllowAnonymous();
 
@@ -59,14 +59,14 @@ public static class UserCoreLogin
                 var sql = @"select UserId, Username, Role, Name 
                         from dbo.Users
                         where UserId = @Id";
-                var user = await conn.QuerySingleOrDefaultAsync<User>
+                var user = await conn.QuerySingleOrDefaultAsync<AppUser>
                     (sql, new { UserId = id });
                 if (user is null) return Results.NotFound();
                 return Results.Ok(user);
             }).AllowAnonymous();
 
         group.MapPost("/",
-            async Task<Results<Created<User>, BadRequest<string>, Conflict<string>>>
+            async Task<Results<Created<AppUser>, BadRequest<string>, Conflict<string>>>
                 (CreateUserRequest req, ISqlConnectionFactory factory) =>
             {
                 using var conn = factory.Create();
@@ -77,7 +77,7 @@ public static class UserCoreLogin
                                     values (@Username, @PasswordClear);
                                     select cast(scope_identity() as int);";
                     var newId = await conn.ExecuteScalarAsync<int>(sql, req);
-                    var created = new User { UserId = newId, Username = req.Username };
+                    var created = new AppUser { UserId = newId, Username = req.Username };
                     return TypedResults.Created($"/user/{newId}", created);
                 }
                 catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number is 2627 or 2601)
