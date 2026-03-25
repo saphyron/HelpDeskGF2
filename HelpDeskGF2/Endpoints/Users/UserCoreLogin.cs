@@ -74,7 +74,7 @@ public static class UserCoreLogin
                 try
                 {
                     var sql = @"insert into dbo.Users (Username, Password) 
-                                    values (@Username, @PasswordClear);
+                                    values (@Username, @Password);
                                     select cast(scope_identity() as int);";
                     var newId = await conn.ExecuteScalarAsync<int>(sql, req);
                     var created = new AppUser { UserId = newId, Username = req.Username };
