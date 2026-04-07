@@ -1,0 +1,14 @@
+@page
+@model CreateThreadModel
+
+<h2>Opret tråd</h2>
+
+<form method="post">
+    <label>Titel</label>
+    <input asp-for="Title" />
+
+    <label>Indhold</label>
+    <textarea asp-for="Body"></textarea>
+
+    <button type="submit">Opret</button>
+</form>

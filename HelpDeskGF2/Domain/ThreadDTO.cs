@@ -36,6 +36,7 @@ public class ThreadSummary
     public string Title { get; set; } = "";
     public int CreatedByUserId { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string Status { get; set; } = "open";
 }
 
 public class UpdateThreadDto
