@@ -26,7 +26,8 @@ public class ThreadResponseDto
 public class CreateThreadDto
 {
     public string Title { get; set; } = "";
-    public int CreatedByUserId { get; set; }
+    public int? CreatedByUserId { get; set; }
+    public string? AnonymousName { get; set; }
     public string ThreadBody { get; set; } = "";
 }
 
@@ -50,5 +51,8 @@ public class AddThreadResponseDto
 {
     public int ThreadId { get; set; }
     public string ResponseBody { get; set; } = "";
-    public int CreatedByUserId { get; set; }
+    
+    public int? CreatedByUserId { get; set; }
+    public string? AnonymousName { get; set; }
+
 }

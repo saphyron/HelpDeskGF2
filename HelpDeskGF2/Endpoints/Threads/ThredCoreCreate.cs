@@ -50,18 +50,27 @@ public static class ThreadCreation
         {
             if (string.IsNullOrWhiteSpace(body.Title))
                 return TypedResults.BadRequest("Title is required");
-            if (string.IsNullOrWhiteSpace(body.ThreadBody))
-                body.ThreadBody = "";
+
+            if (body.CreatedByUserId == null &&
+                string.IsNullOrWhiteSpace(body.AnonymousName))
+                return TypedResults.BadRequest("Anonymous name is required");
 
             using var conn = factory.Create();
             conn.Open();
-            var sql = @"insert into dbo.Threads (Title, CreatedByUserId, ThreadBody)
-                        values (@Title, @CreatedByUserId, @ThreadBody);";
+
+            var sql = @"
+                INSERT INTO dbo.Threads
+                    (Title, ThreadBody, CreatedByUserId, AnonymousName)
+                VALUES
+                    (@Title, @ThreadBody, @CreatedByUserId, @AnonymousName);
+            ";
+
             var rows = await conn.ExecuteAsync(sql, body);
-            if (rows == 1)
-                return TypedResults.Ok();
-            return TypedResults.BadRequest("Failed to create thread");
-        }).AllowAnonymous();
+
+            return rows == 1
+                ? TypedResults.Ok()
+                : TypedResults.BadRequest("Failed to create thread");
+        });
         // Update thread
         group.MapPut("/threads/{id}", async Task<Results<Ok, NotFound, BadRequest<string>>> (
             int id,
@@ -90,26 +99,42 @@ public static class ThreadCreation
             AddThreadResponseDto body,
             ISqlConnectionFactory factory) =>
         {
-            using var conn = factory.Create();
-            conn.Open();
-            var existing = await conn.QuerySingleOrDefaultAsync<ThreadDto>(
-                "select * from dbo.Threads where ThreadId = @Id", new { Id = id });
-            if (existing is null)
-                return TypedResults.NotFound();
             if (string.IsNullOrWhiteSpace(body.ResponseBody))
                 return TypedResults.BadRequest("ResponseBody is required");
-            var sql = @"insert into dbo.ThreadResponses (ThreadId, ResponseBody, CreatedByUserId)
-                        values (@ThreadId, @ResponseBody, @CreatedByUserId);";
+
+            if (body.CreatedByUserId == null &&
+                string.IsNullOrWhiteSpace(body.AnonymousName))
+                return TypedResults.BadRequest("Anonymous name is required");
+
+            using var conn = factory.Create();
+            conn.Open();
+
+            var exists = await conn.ExecuteScalarAsync<int>(
+                "select count(1) from dbo.Threads where ThreadId = @Id",
+                new { Id = id });
+
+            if (exists == 0)
+                return TypedResults.NotFound();
+
+            var sql = @"
+                INSERT INTO dbo.ThreadResponses
+                    (ThreadId, ResponseBody, CreatedByUserId, AnonymousName)
+                VALUES
+                    (@ThreadId, @ResponseBody, @CreatedByUserId, @AnonymousName);
+            ";
+
             var rows = await conn.ExecuteAsync(sql, new
             {
                 ThreadId = id,
                 body.ResponseBody,
-                body.CreatedByUserId
+                body.CreatedByUserId,
+                body.AnonymousName
             });
-            if (rows == 1)
-                return TypedResults.Ok();
-            return TypedResults.BadRequest("Failed to add response");
-        }).AllowAnonymous();
+
+            return rows == 1
+                ? TypedResults.Ok()
+                : TypedResults.BadRequest("Failed to add response");
+        });
         // Update ResponseBody
         group.MapPut("/threads/{threadId}/responses/{responseId}", async Task<Results<Ok, NotFound, BadRequest<string>>> (
             int threadId,
