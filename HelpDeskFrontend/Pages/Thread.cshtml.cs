@@ -1,19 +1,19 @@
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HelpDesk.Domain;
 using HelpDeskFrontend.Services;
 
-
 public class ThreadModel : PageModel
 {
-    private ApiClient _api;
+    private readonly ApiClient _api;
 
-    public ThreadDto Thread { get; set; }
+    public ThreadDto Thread { get; set; } = null!;
 
     public ThreadModel(ApiClient api) => _api = api;
 
-    [BindProperty] public string Response { get; set; }
+    [BindProperty] public string ResponseText { get; set; } = "";
+
+    [BindProperty] public string? AnonymousName { get; set; }
 
     public async Task OnGet(int id)
     {
@@ -22,13 +22,25 @@ public class ThreadModel : PageModel
 
     public async Task<IActionResult> OnPost(int id)
     {
-        var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+        var userId = HttpContext.Session.GetInt32("UserId");
 
-        await _api.AddResponse(id, new AddThreadResponseDto
+        var dto = new AddThreadResponseDto
         {
-            ResponseBody = Response,
-            CreatedByUserId = userId
-        });
+            ThreadId = id,
+            ResponseBody = ResponseText,
+            CreatedByUserId = userId,
+            AnonymousName = userId == null ? AnonymousName : null
+        };
+
+        if (dto.CreatedByUserId == null &&
+            string.IsNullOrWhiteSpace(dto.AnonymousName))
+        {
+            ModelState.AddModelError("", "You must enter a name");
+            await OnGet(id);
+            return Page();
+        }
+
+        await _api.AddResponse(id, dto);
 
         return RedirectToPage("/Thread", new { id });
     }
