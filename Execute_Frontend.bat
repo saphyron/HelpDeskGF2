@@ -1,10 +1,9 @@
 @echo off
 echo Starter HelpDeskFrontend
 
-cd ./HelpDeskGF2
+cd ./HelpDeskFrontend
 dotnet clean
 dotnet build
-
-dotnet run --project HelpDeskGF2.csproj
+dotnet run --project HelpDeskFrontend.csproj
 
 pause
