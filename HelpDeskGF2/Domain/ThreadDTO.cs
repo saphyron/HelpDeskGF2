@@ -4,7 +4,8 @@ public class ThreadDto
 {
     public int ThreadId { get; set; }
     public string Title { get; set; } = "";
-    public int CreatedByUserId { get; set; }
+    public int? CreatedByUserId { get; set; }
+    public string? AnonymousName { get; set; }
     public DateTime CreatedAt { get; set; }
     public string ThreadBody { get; set; } = "";
     public string Status { get; set; } = "open"; 
@@ -17,7 +18,8 @@ public class ThreadResponseDto
 {
     public int ResponseId { get; set; }
     public int ThreadId { get; set; }
-    public int CreatedByUserId { get; set; }
+    public int? CreatedByUserId { get; set; }
+    public string? AnonymousName { get; set; }
     public DateTime CreatedAt { get; set; }
     public string ResponseBody { get; set; } = "";
 }

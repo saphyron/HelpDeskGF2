@@ -1,6 +1,41 @@
 @page
 @model ThreadModel
 
+<h1>@Model.Thread.Title</h1>
+
+<p>
+    @Model.Thread.ThreadBody
+</p>
+
+<hr />
+
+<h2>Replies</h2>
+
+@if (Model.Thread.Responses.Count == 0)
+{
+    <p><em>No replies yet</em></p>
+}
+else
+{
+    <ul>
+        @foreach (var response in Model.Thread.Responses)
+        {
+            <li>
+                <strong>
+                    @(response.CreatedByUserId != null
+                        ? $"User #{response.CreatedByUserId}"
+                        : response.AnonymousName)
+                </strong>
+                <br />
+                @response.ResponseBody
+            </li>
+        }
+    </ul>
+}
+
+<hr />
+
+<h2>Add reply</h2>
 
 <form method="post">
     <textarea asp-for="ResponseText"></textarea>
