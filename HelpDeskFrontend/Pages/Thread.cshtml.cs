@@ -11,14 +11,19 @@ public class ThreadModel : PageModel
 
     public ThreadModel(ApiClient api) => _api = api;
 
+    public bool IsAnonymous { get; set; }
+
     [BindProperty] public string ResponseText { get; set; } = "";
 
     [BindProperty] public string? AnonymousName { get; set; }
 
+    
     public async Task OnGet(int id)
     {
         Thread = await _api.GetThread(id);
+        IsAnonymous = HttpContext.Session.GetInt32("UserId") == null;
     }
+
 
     public async Task<IActionResult> OnPost(int id)
     {

@@ -1,24 +1,17 @@
 @page
 @model ThreadModel
 
-<h2>@Model.Thread.Title</h2>
-
-<p>@Model.Thread.ThreadBody</p>
-
-<hr />
-
-<h3>Svar</h3>
-<ul>
-@foreach (var r in Model.Thread.Responses)
-{
-    <li>@r.ResponseBody (af @r.CreatedByUserId)</li>
-}
-</ul>
-
-<h3>Skriv et svar</h3>
 
 <form method="post">
-    <textarea asp-for="Response"></textarea>
+    <textarea asp-for="ResponseText"></textarea>
 
-    <button type="submit">Send</button>
+    @if (Model.IsAnonymous)
+    {
+        <label>Your name</label>
+        <input asp-for="AnonymousName" />
+    }
+
+    <button type="submit">Reply</button>
 </form>
+
+<div asp-validation-summary="All"></div>
