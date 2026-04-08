@@ -30,17 +30,29 @@ public static class ThreadCreation
         {
             using var conn = factory.Create();
             conn.Open();
-            var sql = @"select *
-                        from dbo.Threads
-                        where ThreadId = @Id;
-                        select *
-                        from dbo.ThreadResponses r
-                        where r.ThreadId = @Id";
-            using var multi = await conn.QueryMultipleAsync(sql, new { ThreadId = id });
+
+            var sql = @"
+                select *
+                from dbo.Threads
+                where ThreadId = @Id;
+
+                select *
+                from dbo.ThreadResponses
+                where ThreadId = @Id;
+            ";
+
+            using var multi = await conn.QueryMultipleAsync(
+                sql,
+                new { Id = id }
+            );
+
             var thread = await multi.ReadSingleOrDefaultAsync<ThreadDto>();
             if (thread is null)
                 return Results.NotFound();
-            thread.Responses = (await multi.ReadAsync<ThreadResponseDto>()).ToList();
+
+            thread.Responses =
+                (await multi.ReadAsync<ThreadResponseDto>()).ToList();
+
             return Results.Ok(thread);
         }).AllowAnonymous();
        // Create thread 
