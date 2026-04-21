@@ -1,24 +1,24 @@
 @page
 @model ThreadModel
 
-<h1>@Model.Thread.Title</h1>
+<h1>@Model.CurrentThread!.Title</h1>
 
 <p>
-    @Model.Thread.ThreadBody
+    @Model.CurrentThread.ThreadBody
 </p>
 
 <hr />
 
 <h2>Replies</h2>
 
-@if (Model.Thread.Responses.Count == 0)
+@if (Model.CurrentThread.Responses.Count == 0)
 {
     <p><em>No replies yet</em></p>
 }
 else
 {
     <ul>
-        @foreach (var response in Model.Thread.Responses)
+        @foreach (var response in Model.CurrentThread.Responses)
         {
             <li>
                 <strong>

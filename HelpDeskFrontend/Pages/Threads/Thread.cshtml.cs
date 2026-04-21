@@ -3,27 +3,35 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using HelpDesk.Domain;
 using HelpDeskFrontend.Services;
 
-public class ThreadModel : PageModel
+public class ThreadModel : BasePageModel
 {
     private readonly ApiClient _api;
 
-    public ThreadDto Thread { get; set; } = null!;
+    public ThreadModel(ApiClient api)
+    {
+        _api = api;
+    }
 
-    public ThreadModel(ApiClient api) => _api = api;
+    public ThreadDto? CurrentThread { get; set; }
 
     public bool IsAnonymous { get; set; }
 
-    [BindProperty] public string ResponseText { get; set; } = "";
+    [BindProperty]
+    public string ResponseText { get; set; } = "";
 
-    [BindProperty] public string? AnonymousName { get; set; }
+    [BindProperty]
+    public string? AnonymousName { get; set; }
 
-    
-    public async Task OnGet(int id)
+    public async Task<IActionResult> OnGet(int id)
     {
-        Thread = await _api.GetThread(id);
-        IsAnonymous = HttpContext.Session.GetInt32("UserId") == null;
-    }
+        CurrentThread = await _api.GetThread(id);
 
+        if (CurrentThread == null)
+            return RedirectToPage("/Threads/Forum");
+
+        IsAnonymous = HttpContext.Session.GetString("Role") == "guest";
+        return Page();
+    }
 
     public async Task<IActionResult> OnPost(int id)
     {
@@ -46,7 +54,6 @@ public class ThreadModel : PageModel
         }
 
         await _api.AddResponse(id, dto);
-
-        return RedirectToPage("/Thread", new { id });
+        return RedirectToPage("/Threads/Thread", new { id });
     }
 }

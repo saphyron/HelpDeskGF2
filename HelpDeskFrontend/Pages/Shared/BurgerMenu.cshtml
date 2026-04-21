@@ -1,0 +1,22 @@
+@{
+    var ctx = ViewContext.HttpContext;
+    var role = ctx.Session.GetString("Role");
+    var isLoggedIn = ctx.Session.GetInt32("UserId") != null;
+}
+
+@if (isLoggedIn)
+{
+    <a asp-page="/Home/Homepage">Home</a>
+    <a asp-page="/Tickets/TicketList">Tickets</a>
+    <a asp-page="/Threads/Forum">Forum</a>
+
+    @if (role != "guest")
+    {
+        <a asp-page="/Home/UserSettings">User</a>
+    }
+
+    @if (role == "admin")
+    {
+        <a asp-page="/Admin/AdminTickets">Admin</a>
+    }
+}

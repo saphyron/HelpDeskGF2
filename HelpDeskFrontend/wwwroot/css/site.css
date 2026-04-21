@@ -1,31 +1,231 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+/* ---------- RESET ---------- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
 }
 
 body {
-  margin-bottom: 60px;
+    background-color: #f4f6f8;
+    color: #2c3e50;
+    line-height: 1.6;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* ---------- HEADER / NAV ---------- */
+header {
+    background-color: #1f2937;
+    padding: 0 1.5rem;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+nav {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    height: 60px;
+}
+
+nav a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- MAIN ---------- */
+main {
+    max-width: 1200px;
+    margin: auto;
+    padding: 2rem 1.5rem;
+    min-height: calc(100vh - 120px);
+}
+
+/* ---------- FOOTER ---------- */
+footer {
+    background-color: #1f2937;
+    color: #cbd5e1;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+}
+
+/* ---------- TITLE PAGE ---------- */
+.title-page {
+    margin-bottom: 2rem;
+}
+
+.title-page h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.title-page p {
+    color: #6b7280;
+}
+
+/* ---------- CARDS (Homepage) ---------- */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.cards a {
+    background: white;
+    padding: 2rem;
+    text-align: center;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #111827;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cards a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+/* ---------- FORMS ---------- */
+form {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 500px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+input, textarea, button {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+    font-size: 1rem;
+}
+
+input, textarea {
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button:hover {
+    background-color: #1e40af;
+}
+
+.logout-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 500;
+}
+.logout-btn:hover {
+    text-decoration: underline;
+}
+
+/* ---------- LISTS ---------- */
+ul {
+    list-style: none;
+    margin-top: 1rem;
+}
+
+li {
+    background: white;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+}
+
+/* ---------- STATUS BADGES ---------- */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-left: 0.5rem;
+}
+
+.badge.waiting {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+.badge.open {
+    background-color: #22c55e;
+    color: white;
+}
+
+.badge.archived {
+    background-color: #6b7280;
+    color: white;
+}
+
+/* ---------- ADMIN ACTION BUTTONS ---------- */
+.admin-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 768px) {
+    nav {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 1rem 0;
+    }
+
+    main {
+        padding: 1.5rem 1rem;
+    }
+}
+
+/* ---------- RESPONSIVE NAV ---------- */
+
+/* Desktop default */
+.desktop-nav {
+    display: flex;
+}
+
+.mobile-nav {
+    display: none;
+}
+
+/* Mobile breakpoint */
+@media (max-width: 768px) {
+
+    /* Skjul desktop-menu */
+    .desktop-nav {
+        display: none;
+    }
+
+    /* Vis burger-menu */
+    .mobile-nav {
+        display: block;
+    }
+}
+
+.mobile-nav a {
+    display: block;
+    padding: 1rem;
+    border-bottom: 1px solid #374151;
 }

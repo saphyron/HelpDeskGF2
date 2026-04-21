@@ -1,0 +1,33 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_LoginLayout";
+}
+
+<h2>Login</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <p style="color:red">@Model.ErrorMessage</p>
+}
+
+<form method="post">
+    <div>
+        <input asp-for="LoginRequest.Username" placeholder="Username" />
+    </div>
+
+    <div>
+        <input asp-for="LoginRequest.Password" type="password" placeholder="Password" />
+    </div>
+
+    <button type="submit">Login</button>
+</form>
+
+<hr />
+
+
+<form method="post" asp-page-handler="Guest">
+    <button type="submit">Continue as Guest</button>
+</form>
+

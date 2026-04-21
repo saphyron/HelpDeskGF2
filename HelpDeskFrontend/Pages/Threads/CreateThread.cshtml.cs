@@ -6,7 +6,7 @@ using HelpDeskFrontend.Services;
 
 namespace HelpDeskFrontend.Pages;
 
-public class CreateThreadModel : PageModel
+public class CreateThreadModel : BasePageModel
 {
     private readonly ApiClient _api;
 

@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using HelpDesk.Data;
 using HelpDesk.Domain;
 using HelpDesk.Endpoints;
+using HelpDesk.Core;
 
 
 
@@ -10,6 +11,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // OpenAPI
 builder.Services.AddOpenApi();
+
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(8);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
 
 // ---------- CORS ----------
 var originsCsv = Environment.GetEnvironmentVariable("FRONTEND_ORIGINS")
@@ -35,6 +48,9 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.PropertyNamingPolicy = null;
     options.SerializerOptions.DictionaryKeyPolicy = null;
 });
+builder.Services.AddScoped<TicketCore>();
+builder.Services.AddScoped<ThreadCore>();
+builder.Services.AddScoped<UserCore>();
 
 var app = builder.Build();
 
@@ -78,16 +94,33 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+
+app.MapGet("/auth/debug", (HttpContext ctx) =>
+{
+    return Results.Ok(new
+    {
+        UserId = ctx.Session.GetInt32("UserId"),
+        Role = ctx.Session.GetString("Role")
+    });
+});
+
+
 // CORS
 app.UseCors("Frontend");
+
+// Session
+app.UseSession();
 
 // Health endpoints
 app.MapGet("/health/ready", () => Results.Ok(new { ok = true }));
 app.MapGet("/api/health/ready", () => Results.Ok(new { ok = true })).AllowAnonymous();
 
 // API Endpoints
+app.MapTicketEndpoints();
 app.MapThreadCreationEndpoint();
 app.MapLoginEndpoint();
+
+
 
 app.Run();
 

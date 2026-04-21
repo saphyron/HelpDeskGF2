@@ -14,6 +14,8 @@ create table dbo.Users (
     Password    nvarchar(64)      not null,
     Role        nvarchar(16)      not null default('user'),
     Name        nvarchar(128),
+    Hold        nvarchar(32),
+    StudieRetning nvarchar(128),
 
     constraint CK_User_Role
         check (Role in ('admin', 'user', 'guest'))
