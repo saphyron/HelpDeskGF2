@@ -19,18 +19,30 @@ public class UserTicketModel : BasePageModel
         TicketCount = await _api.GetNumberTicketsForTheDay();
     }
 
+    public bool IsGuest => HttpContext.Session.GetString("Role") == "guest";
+
     public async Task<IActionResult> OnPost()
     {
-        var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+        var userId = HttpContext.Session.GetInt32("UserId");
+        var role = HttpContext.Session.GetString("Role");
 
-        if (userId > 0)
+        if (userId == null || role == "guest")
         {
-            TempData["ErrorMessage"] = "User not logged in";
+            TempData["ErrorMessage"] = "User not logged in or user is guest";
             return RedirectToPage("/Error");
         }
-        await _api.CreateTicketAsync();
+       
+        try
+        {
+            await _api.CreateTicketAsync(userId.Value, role!);
+            return RedirectToPage("/Tickets/UserTicket");
+        }
+        catch (Exception ex)
+        {
+        return RedirectToPage("/Error", new { message = ex.Message });
+        }
 
-        return RedirectToPage("/Tickets/UserTicket");
+
         
         
     }

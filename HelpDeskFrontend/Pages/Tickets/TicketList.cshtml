@@ -1,9 +1,46 @@
 @page
 @model TicketListModel
+
 <h2>Ticket Queue</h2>
 
 <ul>
-    <li>#12 - Waiting</li>
-    <li>#11 - Open</li>
-    <li>#10 - Archived</li>
+@foreach (var t in Model.Tickets)
+{
+    <li>
+        #@t.PositionInQueue –
+        <strong>@t.Username</strong> –
+        <em>@t.Status</em>
+    </li>
+}
 </ul>
+@if (Model.IsAdmin)
+{
+    <details>
+        <summary>Archived Tickets</summary>
+
+        <form method="get">
+            <label>
+                Filter by date:
+                <input type="date" name="ArchivedDate" />
+            </label>
+            <button>Apply</button>
+        </form>
+
+        <ul>
+        @foreach (var t in Model.ArchivedTickets)
+        {
+            <li>
+                #@t.TicketId –
+                @t.Username –
+                Archived (@t.CreatedAt)
+            </li>
+        }
+        </ul>
+    </details>
+}
+
+<script>
+    setTimeout(() => {
+        location.reload();
+    }, 600000);
+</script>

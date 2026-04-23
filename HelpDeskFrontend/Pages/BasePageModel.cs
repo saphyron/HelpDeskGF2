@@ -8,7 +8,7 @@ public abstract class BasePageModel : PageModel
     {
         if (!SecurityFunctions.IsLoggedIn(HttpContext))
         {
-            Response.Redirect("/Home");
+            Response.Redirect("/Home/idex");
             return false;
         }
         return true;

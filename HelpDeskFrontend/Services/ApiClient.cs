@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HelpDesk.Domain;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace HelpDeskFrontend.Services;
 
@@ -31,16 +32,33 @@ public class ApiClient
         await _http.PostAsync("/user/guest", null);
     }
 
-    
-    public async Task CreateTicketAsync()
-    {
-        var response = await _http.PostAsync("/tickets", null);
+    public async Task<List<TicketListItemDto>> GetTicketListAsync()
+    => await _http.GetFromJsonAsync<List<TicketListItemDto>>("/tickets/list")
+       ?? new();
 
-        if (!response.IsSuccessStatusCode)
-            throw new Exception("Could not create ticket");
+    public async Task<List<TicketListItemDto>> GetArchivedTicketsAsync(DateOnly? date)
+    {
+        var url = date == null
+            ? "/tickets/archived"
+            : $"/tickets/archived?date={date:yyyy-MM-dd}";
+
+        return await _http.GetFromJsonAsync<List<TicketListItemDto>>(url)
+            ?? new();
     }
 
+    
+    public async Task CreateTicketAsync(int userid, string role)
+    {
+        var response = await _http.PostAsJsonAsync("/tickets", new {UserId = userid, Role = role});
+        if (response.IsSuccessStatusCode) return;
+        var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+        throw new Exception(error?.Message ?? "Could not create ticket");
+    }
 
+    public class ErrorResponse
+    {
+        public string? Message { get; set; }
+    }
 
 
     public async Task<LoginResponse?> Login(LoginRequest req)

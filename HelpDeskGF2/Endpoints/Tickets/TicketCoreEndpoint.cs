@@ -11,11 +11,11 @@ public static class TicketEndpoints
     {
         var group = app.MapGroup("/tickets");
 
-        group.MapPost("/", async (int userId, TicketCore core) =>
+        /*group.MapPost("/", async (int userId, TicketCore core) =>
         {
             var ticket = await core.CreateTicket(userId);
             return Results.Ok(ticket);
-        });
+        });*/
 
         group.MapGet("/tickets", async (TicketCore core) =>
         {
@@ -27,22 +27,39 @@ public static class TicketEndpoints
             return Results.Ok(await core.GetNumberTicketsForTheDay());
         });
         
+        group.MapGet("/list", async (TicketCore core) =>
+        {
+            return Results.Ok(await core.GetTicketList());
+        });
+
+        group.MapGet("/archived", async (DateOnly? date, TicketCore Core, HttpContext ctx) =>
+        {
+            if (!SecurityFunctions.RequireAdmin(ctx))
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
+
+            var tickets = await Core.GetArchivedTickets(date);
+            return Results.Ok(tickets);
+        });
         
-        
-        group.MapPost("/tickets",
-            async (TicketCore core, HttpContext ctx) =>
+        group.MapPost("/",
+            async (TicketCore core, CreateTicketRequest req) =>
             {
-                var role = SecurityFunctions.GetUserRole(ctx);
+                if (req.Role == "guest")
+                    return Results.BadRequest(new { Message = "Guests cannot create tickets" });
+                
+                if (req.UserId == 0)
+                    return Results.BadRequest(new { Message = "Guests cannot create tickets" });
 
-                if (role == "guest")
-                    return Results.Forbid();
 
-                var userId = SecurityFunctions.GetUserId(ctx);
-                if (userId == null)
-                    return Results.Unauthorized();
-
-                var ticket = await core.CreateTicket(userId.Value);
-                return Results.Ok(ticket);
+                try
+                {
+                    var ticket = await core.CreateTicket(req.UserId);
+                    return Results.Ok(ticket);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return Results.BadRequest(new { Message = ex.Message });
+                }
             });
 
 

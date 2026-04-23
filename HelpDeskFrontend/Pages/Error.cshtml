@@ -1,4 +1,5 @@
 ﻿@page
+@model ErrorModel
 @{
     ViewData["Title"] = "Fejl";
     Layout = "_Layout";
@@ -6,9 +7,8 @@
 
 <h1>Der opstod en fejl</h1>
 
-<p>
-    @TempData["ErrorMessage"]
-</p>
+    <p>@Model.Message</p>
+
 
 <p>
     Prøv igen senere.

@@ -18,23 +18,35 @@ public class TicketCore
         using var conn = _factory.Create();
         conn.Open();
 
+        var hasActive = await conn.ExecuteScalarAsync<int>(
+            @"select count(1)
+              from dbo.Tickets
+              where UserId = @UserId
+                and CreatedAt >= cast(getdate() as date)
+                and Status in ('Waiting', 'Open')",
+            new { UserId = userId});
+
+        if (hasActive > 0)
+            throw new InvalidOperationException("User already has an active ticket");
+
         // position = antal ventende tickets før denne
         var position = await conn.ExecuteScalarAsync<int>(
             @"select count(1)
               from dbo.Tickets
               where CreatedAt >= cast(getdate() as date)
-                and Status = @Status",
-            new { Status = TicketStatus.Waiting });
+                and Status = 'Waiting'");
+            
 
         var sql = @"
-            insert into dbo.Tickets (UserId, Status)
+            insert into dbo.Tickets (UserId, Status, PositionInQueue)
             output inserted.TicketId
-            values (@UserId, @Status);";
+            values (@UserId, @Status, @PositionInQueue);";
 
         var id = await conn.ExecuteScalarAsync<int>(sql, new
         {
             UserId = userId,
-            Status = TicketStatus.Waiting
+            Status = TicketStatus.Waiting,
+            PositionInQueue = position
         });
 
         return new TicketDto
@@ -86,4 +98,71 @@ public class TicketCore
               where Status != @Archived",
             new { Archived = TicketStatus.Archived });
     }
+
+    public async Task<bool> HasActiveTicket(int userId)
+    {
+        using var conn = _factory.Create();
+        return await conn.ExecuteScalarAsync<int>(
+            @"select count(1)
+              from dbo.Tickets
+              where UserId = @UserId
+                and CreatedAt >= cast(getdate() as date)
+                and Status in ('Waiting', 'Open')",
+            new { UserId = userId}) > 0;
+    }
+
+    
+    public async Task<IEnumerable<TicketListItemDto>> GetTicketList()
+    {
+        using var conn = _factory.Create();
+
+        var sql = @"
+            select 
+                t.TicketId,
+                u.Username,
+                t.Status,
+                t.PositionInQueue,
+                t.CreatedAt
+            from dbo.Tickets t
+            join dbo.Users u on u.UserId = t.UserId
+            where t.Status in ('Open', 'Waiting')
+            order by
+                case
+                    when t.Status = 'Open' then 0
+                    when t.Status = 'Waiting' then 1
+                    else 2
+                end,
+                t.CreatedAt asc;
+        ";
+
+        return await conn.QueryAsync<TicketListItemDto>(sql);
+    }
+
+    public async Task<IEnumerable<TicketListItemDto>> GetArchivedTickets(DateOnly? date = null)
+    {
+        using var conn = _factory.Create();
+
+        var sql = @"
+            select 
+                t.TicketId,
+                u.Username,
+                t.Status,
+                t.PositionInQueue,
+                t.CreatedAt
+            from dbo.Tickets t
+            join dbo.Users u on u.UserId = t.UserId
+            where t.Status = 'Archived'
+        ";
+
+        if (date != null)
+            sql += " and cast(t.CreatedAt as date) = @Date";
+
+        sql += " order by t.CreatedAt desc;";
+
+        return await conn.QueryAsync<TicketListItemDto>(
+            sql,
+            new { Date = date?.ToDateTime(TimeOnly.MinValue) }
+        );
+    }
+
 }

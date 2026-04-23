@@ -35,20 +35,41 @@ public class IndexModel : PageModel
             ErrorMessage = "Invalid username or password";
             return Page();
         }
+
+        HttpContext.Session.Clear();
         
         HttpContext.Session.SetInt32("UserId", result.User.UserId);
         HttpContext.Session.SetString("Username", result.User.Username);
         HttpContext.Session.SetString("Role", result.User.Role);
 
+        
+        Console.WriteLine(
+            $"Creating ticket as UserId={result.User.UserId}, Role={result.User.Role}"
+        );
 
-        return Redirect("/Home/Homepage");
+
+
+        return Redirect("/Home/Index");
     }
 
     
     public async Task<IActionResult> OnPostGuest()
     {
         await _api.LoginAsGuestAsync();
-        return Redirect("/Home/Homepage");
+
+        HttpContext.Session.Clear();
+
+        HttpContext.Session.SetString("Role", "guest");
+        HttpContext.Session.SetString("Username", "Guest");
+        HttpContext.Session.SetInt32("UserId", 0);
+
+        return Redirect("/Home/Index");
+    }
+
+    public IActionResult OnPostLogout()
+    {
+        HttpContext.Session.Clear();
+        return Redirect("/Home/index");
     }
 
 }

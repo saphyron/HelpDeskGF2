@@ -4,6 +4,7 @@ go
 -- Drop phase
 if OBJECT_ID('dbo.ThreadResponses', 'U') is not null drop table dbo.ThreadResponses
 if OBJECT_ID('dbo.Threads', 'U')         is not null drop table dbo.Threads
+if OBJECT_ID('dbo.Tickets', 'U')         is not null drop table dbo.Tickets
 if OBJECT_ID('dbo.Users', 'U')           is not null drop table dbo.Users
 go
 
@@ -19,6 +20,23 @@ create table dbo.Users (
 
     constraint CK_User_Role
         check (Role in ('admin', 'user', 'guest'))
+)
+go
+
+-- Tickets
+create table dbo.Tickets (
+    TicketId            int identity(1,1)   not null primary key,
+    UserId              int                 not null,
+    CreatedAt           datetime            not null default(getdate()),
+    Status              nvarchar(16)        not null default('Waiting'),
+    PositionInQueue     int                 not null,
+
+    constraint CK_Ticket_Status
+        check (Status in ('Waiting', 'Open', 'Archived')),
+
+    -- FK for bruger
+    constraint FK_Tickets_User
+        foreign key (UserId) references dbo.Users(UserId)
 )
 go
 

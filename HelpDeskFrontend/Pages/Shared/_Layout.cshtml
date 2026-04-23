@@ -22,27 +22,23 @@
 
         @if (isLoggedIn)
         {
-            <span>Hello, @username</span>
+            <span>Hello, @username, you have the role @role</span>
 
             @if (role == "admin")
             {
                 <a asp-page="/Admin/AdminTickets">Admin</a>
             }
 
-            <form method="post" action="/user/logout" style="display:inline;">
+            <form method="post" action="/Home/Logout" style="display:inline;">
+                @Html.AntiForgeryToken()
                 <button type="submit" class="logout-btn">Log out</button>
             </form>
         }
         else
         {
-            <a asp-page="/Home">Login</a>
+            <a asp-page="/Home/index">Login</a>
         }
     </nav>
-
-    <!-- MOBILE BURGER -->
-    <div class="mobile-nav">
-        <partial name="BurgerMenu" />
-    </div>
 </header>
 
 <main>
@@ -50,7 +46,7 @@
 </main>
 
 <footer>
-    <p>HelpDesk © 2026</p>
+    <p>HelpDesk © 2026 - John Høeg</p>
 </footer>
 
 </body>

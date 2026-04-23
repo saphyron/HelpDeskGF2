@@ -4,6 +4,11 @@
 
 <p>You are number <strong>@Model.TicketCount</strong> in line.</p>
 
-<form method="post">
-    <button>Create Ticket</button>
-</form>
+@if (Model.IsGuest) {
+    <p class="text-warning"> As a guest you can not create a ticket</p>
+} else {
+
+    <form method="post">
+        <button>Create Ticket</button>
+    </form>
+}

@@ -26,7 +26,7 @@ public class UserCore
 
         var user = await conn.QuerySingleOrDefaultAsync<UserAuthRow>(
             """
-            select UserId, Username, Password, Role, Name, Hold, StudieRetning
+            select UserId as Id, Username, Password, Role, Name, Hold, StudieRetning
             from dbo.Users
             where Username = @Username
             """,
