@@ -64,3 +64,6 @@ VALUES
 go
 
 select * from dbo.users
+
+
+select * from dbo.tickets

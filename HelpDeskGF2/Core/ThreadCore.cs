@@ -34,6 +34,39 @@ public class ThreadCore
         return await conn.QueryAsync<ThreadSummary>(sql);
     }
 
+    public async Task<IEnumerable<ThreadSummary>> GetVisibleByUserThreads(int? userId, bool isAdmin)
+    {
+        using var conn = _factory.Create();
+        conn.Open();
+
+        if (isAdmin) return await conn.QueryAsync<ThreadSummary>(
+            """
+            select *
+            from dbo.Threads
+            order by case status 
+                when 'working on' then 1
+                when 'open' then 2
+                when 'closed' then 3
+                else 4 end,
+                CreatedAt desc
+            """);
+        return await conn.QueryAsync<ThreadSummary>(
+            """
+            select *
+            from dbo.Threads
+            where CreatedByUserId = @UserId
+            or CreatedByUserId = 0
+            or CreatedByUserId is null
+            order by case status 
+                when 'working on' then 1
+                when 'open' then 2
+                when 'closed' then 3
+                else 4 end,
+                CreatedAt desc
+            """,
+            new { UserId = userId });
+    }
+
     public async Task<ThreadDto?> GetThreadById(int id)
     {
         using var conn = _factory.Create();

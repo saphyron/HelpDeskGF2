@@ -2,6 +2,7 @@ using HelpDesk.Core;
 using HelpDesk.Domain;
 using HelpDesk.Security;
 
+
 namespace HelpDesk.Endpoints;
 
 public static class ThreadCreation
@@ -10,9 +11,16 @@ public static class ThreadCreation
     {
         var group = g.MapGroup("/thread");
 
-        group.MapGet("/threads", async (ThreadCore core) =>
-            Results.Ok(await core.GetAllThreads())
-        ).AllowAnonymous();
+        group.MapGet("/threads", async (ThreadCore core, int? userId, string? role) =>
+        {
+            return role switch
+            {
+                "admin" => Results.Ok(await core.GetAllThreads()),
+                "user" => Results.Ok(await core.GetVisibleByUserThreads(userId, false)),
+                _ => Results.Ok(await core.GetAnonymousThreads())
+            };
+        });
+            
 
         group.MapGet("/threads/{id}", async (int id, ThreadCore core) =>
         {
@@ -23,27 +31,21 @@ public static class ThreadCreation
         }).AllowAnonymous();
 
         group.MapPost("/threads",
-            async (CreateThreadDto body, ThreadCore core, HttpContext ctx) =>
+            async (CreateThreadDto body, ThreadCore core) =>
             {
-                var role = SecurityFunctions.GetUserRole(ctx);
-
-                if (role == "guest")
+                
+                if (body.CreatedByUserId == 0 || body.CreatedByUserId == null)
                 {
-                    // 🔒 GUEST: tving anonym oprettelse
                     body.CreatedByUserId = null;
                     body.AnonymousName = "Gæst";
                 }
-                else
+                else if(body.CreatedByUserId <= 0)
                 {
-                    var userId = SecurityFunctions.GetUserId(ctx);
-                    if (userId == null)
-                        return Results.Unauthorized();
-
-                    body.CreatedByUserId = userId;
+                    return Results.BadRequest("Invalid CreatedByUserId");
                 }
 
-                await core.CreateThread(body);
-                return Results.Ok();
+                var ok = await core.CreateThread(body);
+                return ok ? Results.Ok() : Results.Problem();
             });
 
 

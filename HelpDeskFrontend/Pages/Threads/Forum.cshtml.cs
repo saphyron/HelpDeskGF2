@@ -12,9 +12,13 @@ public class ForumModel : BasePageModel
 
     public ForumModel(ApiClient api) => _api = api;
 
-    public IActionResult OnGet()
+    public async Task<IActionResult> OnGetAsync()
     {
-        var result = _api.GetThreadsSafe().Result;
+        try
+        {
+        var userId = HttpContext.Session.GetInt32("UserId");
+        var role = HttpContext.Session.GetString("Role") ?? "guest";
+        var result = await _api.GetThreadsSafe(userId, role);
 
         if (!result.Success)
         {
@@ -24,5 +28,11 @@ public class ForumModel : BasePageModel
 
         Threads = result.Threads;
         return Page();
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.ToString();
+            return RedirectToPage("/Error");
+        }
     }
 }

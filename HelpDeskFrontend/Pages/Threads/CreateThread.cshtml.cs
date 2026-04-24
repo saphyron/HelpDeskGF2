@@ -53,6 +53,6 @@ public class CreateThreadModel : BasePageModel
 
         await _api.CreateThread(dto);
 
-        return RedirectToPage("/Forum");
+        return RedirectToPage("/Threads/Forum");
     }
 }

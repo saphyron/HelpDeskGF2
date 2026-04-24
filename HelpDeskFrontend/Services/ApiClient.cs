@@ -66,11 +66,12 @@ public class ApiClient
                             .Content.ReadFromJsonAsync<LoginResponse>();
 
     public async Task<(bool Success, List<ThreadSummary> Threads, string? Error)>
-        GetThreadsSafe()
+        GetThreadsSafe(int? userId, string role)
     {
         try
         {
-            var response = await _http.GetAsync("/thread/threads");
+            var url = $"/thread/threads?userId={userId}&role={role}";
+            var response = await _http.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -81,7 +82,7 @@ public class ApiClient
             var data = await response.Content
                 .ReadFromJsonAsync<List<ThreadSummary>>();
 
-            return (true, data ?? new List<ThreadSummary>(), null);
+            return (true, data ?? new(), null);
         }
         catch (HttpRequestException)
         {
@@ -99,7 +100,14 @@ public class ApiClient
         => await _http.GetFromJsonAsync<ThreadDto>($"/thread/threads/{id}");
 
     public async Task CreateThread(CreateThreadDto model)
-        => await _http.PostAsJsonAsync("/thread/threads", model);
+    {
+        var response = await _http.PostAsJsonAsync("/thread/threads", model);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+            throw new Exception(error?.Message ?? "Could not create thread");
+        }
+    }
 
     public async Task AddResponse(int threadId, AddThreadResponseDto model)
         => await _http.PostAsJsonAsync($"/thread/threads/{threadId}/responses", model);

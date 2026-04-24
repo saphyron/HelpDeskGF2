@@ -3,13 +3,13 @@
 
 <h2>Forum</h2>
 
-<a href="/CreateThread">Opret ny tråd</a>
+<a href="/Threads/CreateThread">Opret ny tråd</a>
 
 <ul>
 @foreach (var t in Model.Threads)
 {
     <li>
-        <a href="/Thread?id=@t.ThreadId">@t.Title</a>
+        <a asp-page="/Threads/Thread" asp-route-id="@t.ThreadId">@t.Title</a>
         (Status: @t.Status)
     </li>
 }
